@@ -287,7 +287,7 @@ function InteriorParticles() {
 }
 
 // ========== ECO-BRICK (CLEAN — labels removed from 3D, moved to overlay) ==========
-function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean; showLabels: boolean; showCrossSection: boolean }) {
+function EcoBrick({ visible, showLabels, showCrossSection, brickType }: { visible: boolean; showLabels: boolean; showCrossSection: boolean; brickType: "hollow" | "solid" }) {
     const brickRef = useRef<THREE.Group>(null);
     const result = useSimulationStore((s) => s.ecoBrickResult);
 
@@ -355,8 +355,8 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
                     </group>
                 )}
 
-                {/* Hollow holes — hidden in cross-section mode */}
-                {!showCrossSection && (
+                {/* Hollow holes — hidden in cross-section mode OR if brickType is solid */}
+                {!showCrossSection && brickType === "hollow" && (
                     <>
                         {/* Left hole */}
                         <mesh position={[-1.45, 0, 0]}>
@@ -423,6 +423,7 @@ export function ReactorScene() {
     const phase = useSimulationStore((s) => s.simulationPhase);
     const [showLabels, setShowLabels] = useState(true);
     const [showCrossSection, setShowCrossSection] = useState(false);
+    const [brickType, setBrickType] = useState<"hollow" | "solid">("hollow");
 
     const showMixer = phase === "idle" || phase === "mixing";
     const showBrick = phase === "result";
@@ -445,17 +446,26 @@ export function ReactorScene() {
                     {showLabels ? "🏷️ Labels: ON" : "🏷️ Labels: OFF"}
                 </button>
                 {showBrick && (
-                    <button
-                        onClick={() => setShowCrossSection((v) => !v)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-sm transition-all border ${
-                            showCrossSection
-                                ? "bg-amber-700/90 text-white border-amber-500 animate-pulse"
-                                : "bg-white/90 text-eco-700 border-eco-300"
-                        }`}
-                        id="toggle-crosssection-btn"
-                    >
-                        {showCrossSection ? "🔍 Cross-Section: ON" : "🔍 Cross-Section: OFF"}
-                    </button>
+                    <>
+                        <button
+                            onClick={() => setShowCrossSection((v) => !v)}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-sm transition-all border ${
+                                showCrossSection
+                                    ? "bg-amber-700/90 text-white border-amber-500 animate-pulse"
+                                    : "bg-white/90 text-eco-700 border-eco-300"
+                            }`}
+                            id="toggle-crosssection-btn"
+                        >
+                            {showCrossSection ? "🔍 Cross-Section: ON" : "🔍 Cross-Section: OFF"}
+                        </button>
+                        <button
+                            onClick={() => setBrickType((v) => v === "hollow" ? "solid" : "hollow")}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm backdrop-blur-sm transition-all border bg-white/90 text-eco-700 border-eco-300`}
+                            id="toggle-bricktype-btn"
+                        >
+                            🧱 Tipe: {brickType === "hollow" ? "Berongga" : "Pejal"}
+                        </button>
+                    </>
                 )}
             </div>
 
@@ -488,61 +498,63 @@ export function ReactorScene() {
                 </div>
             </div>
 
-            {/* ── STATIC DIMENSION LABEL PANEL (Right side, only on brick result) ── */}
+            {/* ── RIGHT PANELS (DIMENSI & SPECS) STACKED PROPERLY ── */}
             {showBrick && showLabels && (
-                <div className="absolute top-1/2 right-3 z-10 -translate-y-1/2 flex flex-col gap-2 pointer-events-none">
-                    {/* SNI Status badge */}
-                    <div className={`rounded-lg px-3 py-2 text-center text-[10px] font-bold shadow-lg border ${
-                        isSNI
-                            ? "bg-eco-900/90 border-eco-400/50 text-eco-300"
-                            : "bg-red-900/90 border-red-400/50 text-red-300"
-                    }`}>
-                        <div className="text-lg mb-0.5">{isSNI ? "✅" : "⚠️"}</div>
-                        <div>Batako Berongga</div>
-                        <div className="text-[9px] opacity-80 mt-0.5">SNI 03-0349-1989</div>
+                <div className="absolute top-12 bottom-3 right-3 z-10 flex flex-col justify-end gap-3 pointer-events-none w-[185px]">
+                    {/* SNI Status badge & Dimension Panel */}
+                    <div className="flex flex-col gap-2 shrink-0">
+                        <div className={`rounded-lg px-3 py-2 text-center text-[10px] font-bold shadow-lg border ${
+                            isSNI
+                                ? "bg-eco-900/90 border-eco-400/50 text-eco-300"
+                                : "bg-red-900/90 border-red-400/50 text-red-300"
+                        }`}>
+                            <div className="text-lg mb-0.5">{isSNI ? "✅" : "⚠️"}</div>
+                            <div>Batako {brickType === "hollow" ? "Berongga" : "Pejal"}</div>
+                            <div className="text-[9px] opacity-80 mt-0.5">SNI 03-0349-1989</div>
+                        </div>
+
+                        <div className="rounded-lg bg-white/95 border border-eco-200 shadow-lg px-3 py-2.5 space-y-2">
+                            <div className="text-[9px] font-bold text-eco-700 uppercase tracking-wider text-center border-b border-eco-100 pb-1.5 mb-1.5">
+                                📐 Dimensi SNI
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-eco-600 w-3 text-center"><span className="text-[9px]">↔</span></div>
+                                <div><div className="text-[8px] text-gray-500">Panjang</div><div className="text-[11px] font-bold text-eco-800">40 cm</div></div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-eco-600 w-3 text-center"><span className="text-[9px]">↕</span></div>
+                                <div><div className="text-[8px] text-gray-500">Tinggi</div><div className="text-[11px] font-bold text-eco-800">20 cm</div></div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-eco-600 w-3 text-center"><span className="text-[9px]">⇔</span></div>
+                                <div><div className="text-[8px] text-gray-500">Lebar</div><div className="text-[11px] font-bold text-eco-800">10 cm</div></div>
+                            </div>
+                            <div className="border-t border-eco-100 pt-1.5">
+                                <div className="text-[8px] text-gray-500">Volume Solid</div>
+                                <div className="text-[10px] font-semibold text-eco-700">
+                                    {brickType === "hollow" ? "6.432 cm³" : "8.000 cm³"}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Dimension labels */}
-                    <div className="rounded-lg bg-white/95 border border-eco-200 shadow-lg px-3 py-2.5 space-y-2">
-                        <div className="text-[9px] font-bold text-eco-700 uppercase tracking-wider text-center border-b border-eco-100 pb-1.5 mb-1.5">
-                            📐 Dimensi SNI
-                        </div>
-                        {/* Panjang */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-0.5 text-eco-600">
-                                <span className="text-[9px]">↔</span>
+                    {/* Spec Overlay */}
+                    {result && (
+                        <div className="shrink-0 rounded-xl border border-eco-500/30 bg-eco-900/90 p-3 shadow-xl backdrop-blur-md">
+                            <div className="mb-1.5 border-b border-eco-600/30 pb-1 text-center text-[9px] font-bold uppercase tracking-wider text-eco-400">
+                                Spesifikasi Material
                             </div>
-                            <div>
-                                <div className="text-[8px] text-gray-500">Panjang</div>
-                                <div className="text-[11px] font-bold text-eco-800">40 cm</div>
-                            </div>
-                        </div>
-                        {/* Tinggi */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-0.5 text-eco-600">
-                                <span className="text-[9px]">↕</span>
-                            </div>
-                            <div>
-                                <div className="text-[8px] text-gray-500">Tinggi</div>
-                                <div className="text-[11px] font-bold text-eco-800">20 cm</div>
+                            <div className="space-y-0.5 font-mono text-[10px] text-eco-100">
+                                <div className="flex justify-between gap-4"><span>Kuat Tekan</span><span className="font-bold text-eco-300">{result.compressiveStrengthMPa} MPa</span></div>
+                                <div className="flex justify-between gap-4"><span>Densitas</span><span className="font-bold text-eco-300">{result.densityKgM3} kg/m³</span></div>
+                                <div className="flex justify-between gap-4"><span>Berat</span><span className="font-bold text-eco-300">{result.dimensions.weightKg} kg</span></div>
+                                <div className="flex justify-between gap-4"><span>Porositas</span><span className="font-bold text-eco-300">{result.waterAbsorptionPercent}%</span></div>
+                                <div className="mt-1 border-t border-eco-700/30 pt-1 text-center text-[9px] text-eco-400">
+                                    40 × 20 × 10 cm — SNI
+                                </div>
                             </div>
                         </div>
-                        {/* Lebar */}
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-0.5 text-eco-600">
-                                <span className="text-[9px]">⇔</span>
-                            </div>
-                            <div>
-                                <div className="text-[8px] text-gray-500">Lebar</div>
-                                <div className="text-[11px] font-bold text-eco-800">10 cm</div>
-                            </div>
-                        </div>
-                        {/* Volume */}
-                        <div className="border-t border-eco-100 pt-1.5">
-                            <div className="text-[8px] text-gray-500">Volume Solid</div>
-                            <div className="text-[10px] font-semibold text-eco-700">6.432 cm³</div>
-                        </div>
-                    </div>
+                    )}
                 </div>
             )}
 
@@ -560,7 +572,7 @@ export function ReactorScene() {
                 <React.Suspense fallback={<Loader />}>
                     <Floor />
                     <Mixer visible={showMixer} showLabels={showLabels} />
-                    <EcoBrick visible={showBrick} showLabels={showLabels} showCrossSection={showCrossSection} />
+                    <EcoBrick visible={showBrick} showLabels={showLabels} showCrossSection={showCrossSection} brickType={brickType} />
                 </React.Suspense>
 
                 <OrbitControls
@@ -595,24 +607,6 @@ export function ReactorScene() {
             <div className="absolute bottom-3 left-3 rounded-lg bg-white/80 p-2 text-[10px] text-eco-700 backdrop-blur-sm pointer-events-none border border-eco-200">
                 Left Click: Rotate • Right Click: Pan • Scroll: Zoom
             </div>
-
-            {/* Spec Overlay — Bottom Right */}
-            {result && showLabels && showBrick && (
-                <div className="absolute bottom-3 right-3 z-10 pointer-events-none min-w-[185px] rounded-xl border border-eco-500/30 bg-eco-900/90 p-3 shadow-xl backdrop-blur-md transition-all duration-500 ease-in-out">
-                    <div className="mb-1.5 border-b border-eco-600/30 pb-1 text-center text-[9px] font-bold uppercase tracking-wider text-eco-400">
-                        Spesifikasi Material
-                    </div>
-                    <div className="space-y-0.5 font-mono text-[10px] text-eco-100">
-                        <div className="flex justify-between gap-4"><span>Kuat Tekan</span><span className="font-bold text-eco-300">{result.compressiveStrengthMPa} MPa</span></div>
-                        <div className="flex justify-between gap-4"><span>Densitas</span><span className="font-bold text-eco-300">{result.densityKgM3} kg/m³</span></div>
-                        <div className="flex justify-between gap-4"><span>Berat</span><span className="font-bold text-eco-300">{result.dimensions.weightKg} kg</span></div>
-                        <div className="flex justify-between gap-4"><span>Porositas</span><span className="font-bold text-eco-300">{result.waterAbsorptionPercent}%</span></div>
-                        <div className="mt-1 border-t border-eco-700/30 pt-1 text-center text-[9px] text-eco-400">
-                            40 × 20 × 10 cm — SNI 03-0349-1989
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
