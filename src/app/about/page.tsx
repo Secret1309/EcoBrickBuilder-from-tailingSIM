@@ -351,95 +351,101 @@ function DiagramDSS() {
 
 // ========== LCA STACKED BAR CHART (Gambar 3.5 — Zhang dkk. 2023) ==========
 function LCAChart() {
+    // Data dari Zhang dkk. (2023): 3 segmen — Raw materials (orange), Manufacturing (blue/hatch), End of life (yellow/dot)
     const categories = [
-        "Climate change", "Ozone depletion", "Terrestrial\nacidification", "Human toxicity",
+        "Climate\nchange", "Ozone\ndepletion", "Terrestrial\nacidification", "Human\ntoxicity",
         "Photochemical\noxidant\nformation", "Particulate\nmatter\nformation", "Terrestrial\necotoxicity",
         "Freshwater\necotoxicity", "Marine\necotoxicity", "Water\ndepletion", "Metal\ndepletion", "Fossil\ndepletion",
     ];
-    // Approximate % values from Zhang 2023 (3 segments: orange bottom, blue middle, yellow/dot top)
     const data = [
-        { a: 18, b: 65, c: 17 }, { a: 17, b: 68, c: 15 }, { a: 18, b: 64, c: 18 },
+        { a: 18, b: 65, c: 17 }, { a: 15, b: 70, c: 15 }, { a: 18, b: 64, c: 18 },
         { a: 16, b: 67, c: 17 }, { a: 19, b: 63, c: 18 }, { a: 17, b: 65, c: 18 },
         { a: 18, b: 66, c: 16 }, { a: 17, b: 67, c: 16 }, { a: 16, b: 69, c: 15 },
-        { a: 19, b: 58, c: 23 }, { a: 16, b: 66, c: 18 }, { a: 17, b: 66, c: 17 },
+        { a: 13, b: 52, c: 35 }, { a: 16, b: 66, c: 18 }, { a: 17, b: 66, c: 17 },
     ];
 
-    const BAR_W = 30; const BAR_GAP = 14;
-    const W = categories.length * (BAR_W + BAR_GAP) + 60;
-    const H = 200;
-    const PAD = { top: 12, right: 20, bottom: 80, left: 42 };
-    const iH = H - PAD.top - PAD.bottom;
+    const BAR_W = 32;
+    const BAR_GAP = 12;
+    const CHART_W = categories.length * (BAR_W + BAR_GAP) + 60;
+    const CHART_H = 300;
+    const PAD = { top: 24, right: 20, bottom: 110, left: 46 };
+    const iH = CHART_H - PAD.top - PAD.bottom;
     const toY = (pct: number) => PAD.top + (1 - pct / 100) * iH;
 
     return (
         <div className="my-6 flex flex-col items-center">
             <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm w-full overflow-x-auto">
-                <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="mx-auto">
-                    {/* Y axis ticks */}
+                <svg width={CHART_W} height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`} className="mx-auto">
+                    {/* Legend — top left */}
+                    <g transform={`translate(${PAD.left + 4}, 6)`}>
+                        <rect x={0} y={0} width={12} height={9} fill="#f97316" opacity={0.9} rx={1}/>
+                        <text x={16} y={8.5} fontSize={9} fill="#374151" fontWeight="500">Raw materials</text>
+                        <rect x={95} y={0} width={12} height={9} fill="#6b9fd4" opacity={0.85} rx={1}/>
+                        <text x={111} y={8.5} fontSize={9} fill="#374151" fontWeight="500">Manufacturing</text>
+                        <rect x={195} y={0} width={12} height={9} fill="#fbbf24" opacity={0.85} rx={1}/>
+                        <text x={211} y={8.5} fontSize={9} fill="#374151" fontWeight="500">End of life</text>
+                    </g>
+
+                    {/* Y gridlines + tick labels */}
                     {[0, 20, 40, 60, 80, 100].map(v => (
                         <g key={v}>
-                            <text x={PAD.left - 5} y={toY(v) + 3} textAnchor="end" fontSize={8} fill="#555">{v}%</text>
-                            <line x1={PAD.left} y1={toY(v)} x2={W - PAD.right} y2={toY(v)} stroke="#e5e7eb" strokeWidth={0.5} />
+                            <text x={PAD.left - 6} y={toY(v) + 4} textAnchor="end" fontSize={9} fill="#6b7280">{v}%</text>
+                            <line x1={PAD.left} y1={toY(v)} x2={CHART_W - PAD.right} y2={toY(v)}
+                                stroke={v === 0 ? "#374151" : "#e5e7eb"} strokeWidth={v === 0 ? 1 : 0.7} />
                         </g>
                     ))}
                     {/* Y axis */}
                     <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + iH} stroke="#374151" strokeWidth={1} />
-                    {/* X axis */}
-                    <line x1={PAD.left} y1={PAD.top + iH} x2={W - PAD.right} y2={PAD.top + iH} stroke="#374151" strokeWidth={1} />
 
                     {/* Bars */}
                     {data.map((d, i) => {
-                        const x = PAD.left + i * (BAR_W + BAR_GAP) + 4;
-                        const yA = toY(d.a); const yB = toY(d.a + d.b); const yTop = toY(100);
+                        const x = PAD.left + i * (BAR_W + BAR_GAP) + 6;
+                        const yA = toY(d.a);
+                        const yB = toY(d.a + d.b);
+                        const yTop = toY(100);
                         const hA = toY(0) - yA;
                         const hB = yA - yB;
                         const hC = yB - yTop;
                         return (
                             <g key={i}>
-                                {/* Segment A (orange/bottom) */}
-                                <rect x={x} y={yA} width={BAR_W} height={hA} fill="#f97316" opacity={0.85} />
-                                {/* Segment B (blue/middle) with hatching pattern */}
-                                <rect x={x} y={yB} width={BAR_W} height={hB} fill="#6b9fd4" opacity={0.85} />
-                                {/* Hatch lines on B */}
-                                {Array.from({ length: Math.floor(hB / 4) }).map((_, hi) => (
-                                    <line key={hi} x1={x} y1={yB + hi * 4} x2={x + BAR_W} y2={yB + hi * 4} stroke="white" strokeWidth={0.8} opacity={0.4} />
+                                {/* Segment A — Raw materials (orange) */}
+                                <rect x={x} y={yA} width={BAR_W} height={hA} fill="#f97316" opacity={0.9} />
+                                {/* Segment B — Manufacturing (blue + hatch) */}
+                                <rect x={x} y={yB} width={BAR_W} height={hB} fill="#6b9fd4" opacity={0.88} />
+                                {Array.from({ length: Math.ceil(hB / 4.5) }).map((_, hi) => (
+                                    <line key={hi} x1={x} y1={yB + hi * 4.5} x2={x + BAR_W} y2={yB + hi * 4.5}
+                                        stroke="white" strokeWidth={1} opacity={0.35} />
                                 ))}
-                                {/* Segment C (yellow/top with dots) */}
+                                {/* Segment C — End of life (yellow + dots) */}
                                 <rect x={x} y={yTop} width={BAR_W} height={hC} fill="#fbbf24" opacity={0.85} />
-                                {/* Dot pattern on C */}
-                                {Array.from({ length: Math.floor(hC / 5) }).map((_, di) =>
-                                    Array.from({ length: Math.floor(BAR_W / 6) }).map((_, dj) => (
-                                        <circle key={`${di}-${dj}`} cx={x + 3 + dj * 6} cy={yTop + 3 + di * 5} r={1} fill="white" opacity={0.6} />
+                                {Array.from({ length: Math.ceil(hC / 5.5) }).map((_, di) =>
+                                    Array.from({ length: Math.floor(BAR_W / 7) }).map((_, dj) => (
+                                        <circle key={`${di}-${dj}`}
+                                            cx={x + 3.5 + dj * 7} cy={yTop + 3 + di * 5.5}
+                                            r={1.2} fill="white" opacity={0.55} />
                                     ))
                                 )}
                             </g>
                         );
                     })}
 
-                    {/* X labels (rotated) */}
+                    {/* X axis labels — rotated -55°, enough bottom padding */}
                     {categories.map((cat, i) => {
-                        const x = PAD.left + i * (BAR_W + BAR_GAP) + 4 + BAR_W / 2;
+                        const cx = PAD.left + i * (BAR_W + BAR_GAP) + 6 + BAR_W / 2;
                         const lines = cat.split("\n");
                         return (
-                            <g key={i} transform={`translate(${x}, ${PAD.top + iH + 8})`}>
-                                <g transform="rotate(-55)">
-                                    {lines.map((line, li) => (
-                                        <text key={li} x={0} y={li * 9} textAnchor="end" fontSize={7.5} fill="#374151">{line}</text>
+                            <g key={i} transform={`translate(${cx}, ${PAD.top + iH + 6})`}>
+                                <g transform="rotate(-50)">
+                                    {lines.map((ln, li) => (
+                                        <text key={li} x={0} y={li * 10}
+                                            textAnchor="end" fontSize={8.5} fill="#374151">
+                                            {ln}
+                                        </text>
                                     ))}
                                 </g>
                             </g>
                         );
                     })}
-
-                    {/* Legend */}
-                    <g transform={`translate(${PAD.left + 4}, 4)`}>
-                        <rect x={0} y={0} width={10} height={8} fill="#f97316" opacity={0.85} />
-                        <text x={13} y={8} fontSize={7.5} fill="#374151">Raw materials</text>
-                        <rect x={80} y={0} width={10} height={8} fill="#6b9fd4" opacity={0.85} />
-                        <text x={93} y={8} fontSize={7.5} fill="#374151">Manufacturing</text>
-                        <rect x={165} y={0} width={10} height={8} fill="#fbbf24" opacity={0.85} />
-                        <text x={178} y={8} fontSize={7.5} fill="#374151">End of life</text>
-                    </g>
                 </svg>
             </div>
             <p className="mt-3 text-sm text-center text-gray-600 italic max-w-3xl">
@@ -793,23 +799,49 @@ export default function About() {
                             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-sm text-gray-700">📚</span>
                             Referensi Ilmiah BAB 3
                         </h2>
-                        <div className="space-y-3 text-sm text-gray-700">
-                            <p>
-                                <strong>Longos, A., Tigue, A.A., Dollente, I.J. et al.</strong> (2020). Optimization of the mix formulation of geopolymer using nickel-laterite mine waste and coal fly ash. <em>Minerals</em>, 10(12), 1144.
-                            </p>
-                            <p>
-                                <strong>Ahmari, S. &amp; Zhang, L.</strong> (2013). Durability and leaching behavior of mine tailings-based geopolymer bricks. <em>Construction and Building Materials</em>, 44, 743–750.
-                            </p>
-                            <p>
-                                <strong>Jadid, M.N.</strong> (2013). Development of a web-based decision support system for materials selection in construction engineering. <em>International Journal of Civil Engineering and Technology</em>, 4(2), 177–188.
-                            </p>
-                            <p>
-                                <strong>Zhang, J. et al.</strong> (2023). Life cycle assessment for geopolymer concrete bricks using brown coal fly ash. <em>Sustainability</em>, 15(9), 7718.
-                            </p>
-                            <p>
-                                <strong>Mubarok, M.Z., Minwal, W.P. &amp; Tanlega, Z.</strong> (2026). Handout Kuliah MG-3215 Hidro-elektrometalurgi: Proses Ekstraksi Nikel dari Bijih Laterit dengan Jalur Hidrometalurgi. ITB.
-                            </p>
+                        <div className="space-y-4 text-sm text-gray-700">
+                            {/* Ref 3.2.1 */}
+                            <div className="flex gap-3">
+                                <span className="mt-0.5 flex-shrink-0 rounded bg-eco-100 px-1.5 py-0.5 text-[10px] font-bold text-eco-700">3.2.1</span>
+                                <p>
+                                    Longos, A., Tigue, A.A., Dollente, I.J., Malenab, R.A., Bernardo-Arugay, I., Hinode, H., Kurniawan, W. and Promentilla, M.A. (2020)
+                                    &lsquo;Optimization of the mix formulation of geopolymer using nickel-laterite mine waste and coal fly ash&rsquo;,{" "}
+                                    <em>Minerals</em>, 10(12), p. 1144.
+                                </p>
+                            </div>
+                            {/* Ref 3.2.2 */}
+                            <div className="flex gap-3">
+                                <span className="mt-0.5 flex-shrink-0 rounded bg-eco-100 px-1.5 py-0.5 text-[10px] font-bold text-eco-700">3.2.2</span>
+                                <p>
+                                    Ahmari, S. and Zhang, L. (2013)
+                                    &lsquo;Durability and leaching behavior of mine tailings-based geopolymer bricks&rsquo;,{" "}
+                                    <em>Construction and Building Materials</em>, 44, pp. 743&ndash;750.
+                                </p>
+                            </div>
+                            {/* Ref 3.3.1 */}
+                            <div className="flex gap-3">
+                                <span className="mt-0.5 flex-shrink-0 rounded bg-eco-100 px-1.5 py-0.5 text-[10px] font-bold text-eco-700">3.3.1</span>
+                                <p>
+                                    Jadid, M.N. (2013)
+                                    &lsquo;Development of a web-based decision support system for materials selection in construction engineering&rsquo;,{" "}
+                                    <em>International Journal of Civil Engineering and Technology</em>, 4(2), pp. 177&ndash;188.
+                                </p>
+                            </div>
+                            {/* Ref 3.4.1 */}
+                            <div className="flex gap-3">
+                                <span className="mt-0.5 flex-shrink-0 rounded bg-eco-100 px-1.5 py-0.5 text-[10px] font-bold text-eco-700">3.4.1</span>
+                                <p>
+                                    Zhang, J., Fernando, S., Law, D.W., Gunasekara, C., Setunge, S., Sandanayake, M. and Zhang, G. (2023)
+                                    &lsquo;Life cycle assessment for geopolymer concrete bricks using brown coal fly ash&rsquo;,{" "}
+                                    <em>Sustainability</em>, 15(9), p. 7718.
+                                </p>
+                            </div>
                         </div>
+                        <p className="mt-5 rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-500 italic">
+                            <strong>Catatan:</strong> Referensi Mubarok, M.Z., Minwal, W.P. and Tanlega, Z. (2026)
+                            <em> Handout Kuliah MG-3215 Hidro-elektrometalurgi: Bab VIII Proses Ekstraksi Nikel dari Bijih Laterit dengan Jalur Hidrometalurgi.</em>
+                            Bandung: Program Studi Teknik Metalurgi ITB — digunakan pada Bab 1 (Latar Belakang) dan Bab 2 (Landasan Teori).
+                        </p>
                     </section>
 
                 </div>
