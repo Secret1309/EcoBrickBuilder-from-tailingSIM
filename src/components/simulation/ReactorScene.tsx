@@ -29,7 +29,7 @@ function Loader() {
     );
 }
 
-// ========== SLURRY PARTICLES (animasi tailing slurry mengalir dari mixer) ==========
+// ========== SLURRY PARTICLES ==========
 function SlurryParticles({ active }: { active: boolean }) {
     const particlesRef = useRef<THREE.Points>(null);
     const count = 120;
@@ -38,13 +38,11 @@ function SlurryParticles({ active }: { active: boolean }) {
         const pos = new Float32Array(count * 3);
         const vel = new Float32Array(count * 3);
         for (let i = 0; i < count; i++) {
-            // Spawn inside drum mouth area
             const angle = Math.random() * Math.PI * 2;
             const r = Math.random() * 1.4;
             pos[i * 3] = Math.cos(angle) * r;
-            pos[i * 3 + 1] = 3.0 + Math.random() * 0.5; // starts at drum top
+            pos[i * 3 + 1] = 3.0 + Math.random() * 0.5;
             pos[i * 3 + 2] = Math.sin(angle) * r;
-            // Velocity: slight outward swirl + downward
             vel[i * 3] = (Math.random() - 0.5) * 0.04;
             vel[i * 3 + 1] = -(0.015 + Math.random() * 0.035);
             vel[i * 3 + 2] = (Math.random() - 0.5) * 0.04;
@@ -62,7 +60,6 @@ function SlurryParticles({ active }: { active: boolean }) {
             arr[i * 3] += velocities[i * 3];
             arr[i * 3 + 1] += velocities[i * 3 + 1];
             arr[i * 3 + 2] += velocities[i * 3 + 2];
-            // Reset if particle falls below drum bottom
             if (arr[i * 3 + 1] < -0.2) {
                 const angle = Math.random() * Math.PI * 2;
                 const r = Math.random() * 1.4;
@@ -95,7 +92,7 @@ function SlurryParticles({ active }: { active: boolean }) {
     );
 }
 
-// ========== MIXER (Idle/Mixing) — dengan slurry content di dalam drum ==========
+// ========== MIXER ==========
 function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean }) {
     const bladeRef = useRef<THREE.Group>(null);
     const phase = useSimulationStore((s) => s.simulationPhase);
@@ -126,7 +123,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
                 </mesh>
             ))}
 
-            {/* Drum body — main mixer vessel */}
+            {/* Drum body */}
             <mesh position={[0, 1.7, 0]}>
                 <cylinderGeometry args={[1.85, 1.55, 3.1, 32, 1, true]} />
                 <meshStandardMaterial color="#4b5563" metalness={0.72} roughness={0.28} side={THREE.FrontSide} />
@@ -142,7 +139,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
                 <meshStandardMaterial color="#374151" metalness={0.8} roughness={0.2} />
             </mesh>
 
-            {/* Slurry fill inside drum (brownish-red tailing slurry) */}
+            {/* Slurry fill */}
             <mesh position={[0, 1.0, 0]}>
                 <cylinderGeometry args={[1.50, 1.48, 1.65, 32]} />
                 <meshStandardMaterial
@@ -153,7 +150,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
                     opacity={0.88}
                 />
             </mesh>
-            {/* Slurry surface (top) */}
+            {/* Slurry surface */}
             <mesh position={[0, 1.83, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                 <circleGeometry args={[1.50, 32]} />
                 <meshStandardMaterial
@@ -185,12 +182,10 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
             <group ref={bladeRef} position={[0, 1.4, 0]}>
                 {[0, 1, 2, 3].map((i) => (
                     <group key={i} rotation={[0, (Math.PI / 2) * i, 0]}>
-                        {/* Main blade */}
                         <mesh position={[0.75, 0, 0]} rotation={[0, 0, -0.15]}>
                             <boxGeometry args={[1.45, 0.09, 0.18]} />
                             <meshStandardMaterial color="#15803d" metalness={0.55} roughness={0.38} />
                         </mesh>
-                        {/* Scraper tip */}
                         <mesh position={[1.50, -0.15, 0]}>
                             <boxGeometry args={[0.22, 0.22, 0.18]} />
                             <meshStandardMaterial color="#166534" metalness={0.6} roughness={0.3} />
@@ -210,7 +205,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
                 <meshStandardMaterial color="#15803d" metalness={0.6} roughness={0.4} />
             </mesh>
 
-            {/* Label */}
+            {/* Mixer Label — shown in 3D above mixer */}
             {showLabels && visible && (
                 <Html position={[0, 5.5, 0]} center distanceFactor={14} zIndexRange={[50, 0]}>
                     <div className="pointer-events-none select-none rounded-lg border border-eco-500/30 bg-eco-900/80 px-3 py-2 text-center shadow-lg backdrop-blur-sm">
@@ -227,7 +222,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
                 </Html>
             )}
 
-            {/* Slurry particle stream when mixing */}
+            {/* Slurry particles when mixing */}
             <SlurryParticles active={isMixing} />
 
             {/* Sparkles when mixing */}
@@ -245,7 +240,7 @@ function Mixer({ visible, showLabels }: { visible: boolean; showLabels: boolean 
     );
 }
 
-// ========== SUBSTANCE COLORS (Komposisi Mikroskopis Balok) ==========
+// ========== SUBSTANCE COLORS ==========
 const SUBSTANCE_COLORS = [
     { color: "#8b7355", name: "Tailing HPAL Nikel (Filler Utama)" },
     { color: "#a0a0a0", name: "Semen Portland (Perekat Hidrasi)" },
@@ -255,7 +250,6 @@ const SUBSTANCE_COLORS = [
     { color: "#7a9cbc", name: "Gipsum CaSO₄ (Byproduct Enkapsulasi)" },
 ];
 
-/** Densely packed multi-colored micro-spheres inside the hollow brick shape */
 function InteriorParticles() {
     const particles = useMemo(() => {
         const result: { pos: [number, number, number]; size: number; colorIdx: number }[] = [];
@@ -265,7 +259,6 @@ function InteriorParticles() {
             const y = (Math.random() - 0.5) * 1.15;
             const z = (Math.random() - 0.5) * 2.3;
 
-            // Kosongkan partikel di area 2 lubang rongga tengah (di x: -1.45 & +1.45)
             const inLeftHole = Math.abs(x - (-1.45)) < 0.75 && Math.abs(z) < 0.55;
             const inRightHole = Math.abs(x - 1.45) < 0.75 && Math.abs(z) < 0.55;
             if (inLeftHole || inRightHole) continue;
@@ -293,7 +286,7 @@ function InteriorParticles() {
     );
 }
 
-// ========== ECO-BRICK (Hollow Brick — Result) ==========
+// ========== ECO-BRICK (CLEAN — labels removed from 3D, moved to overlay) ==========
 function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean; showLabels: boolean; showCrossSection: boolean }) {
     const brickRef = useRef<THREE.Group>(null);
     const result = useSimulationStore((s) => s.ecoBrickResult);
@@ -308,12 +301,11 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
         brickRef.current.rotation.y = clock.getElapsedTime() * 0.28;
     });
 
-    // Brick proportions SNI 03-0349-1989: 40 x 20 x 10 cm → render 4:2:1 units (scaled for readability → 5:2.5:1.25)
+    // SNI 03-0349-1989: 40 × 20 × 10 cm
     const W = 5.0;   // 40 cm
-    const H = 2.5;   // 20 cm (height of the block, standing orientation → length)
+    const H = 2.5;   // 20 cm
     const D = 1.25;  // 10 cm
 
-    // Dynamic color based on strength
     const strength = result?.compressiveStrengthMPa ?? 10;
     const hue = 120 + Math.min(strength * 0.5, 20);
     const lightness = 35 + Math.min(strength * 0.55, 20);
@@ -321,20 +313,12 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
     const brickColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     const isSNI = result?.isSNICompliant ?? false;
 
-    // Hollow hole dimensions (proportional to brick body):
-    // In real SNI batako berongga: 2 holes per block, each ~13cm x 7cm, depth full height
-    // Scaled: hole W=1.3, hole D=0.7 (relative to full D=1.25), positioned at -1.3 and +1.3 from center X
     const holeW = 1.3;
     const holeD = 0.90;
-    const holeH = D * 1.02; // slightly taller to punch through
 
     return (
         <animated.group scale={spring.scale} position={[0, 0, 0]}>
             <group ref={brickRef} position={[0, 1.5, 0]}>
-                {/* Main brick body (lying flat — SNI orientation) */}
-                {/* Orientation: W=length(40cm), D=width(20cm?), H=height(10cm) — standard batako lying on bed face */}
-                {/* Actually per SNI 03-0349-1989: 400mm x 200mm x 100mm */}
-                {/* W(x)=4 → 40cm, D(z)=2 → 20cm, H(y)=1 → 10cm — scale up for visibility */}
                 {/* Main brick body */}
                 {!showCrossSection ? (
                     <RoundedBox args={[W, D, H]} radius={0.08} smoothness={4} castShadow receiveShadow>
@@ -353,13 +337,13 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
                             <meshBasicMaterial visible={false} />
                             <Edges threshold={15} color="#6b7280" lineWidth={1} />
                         </mesh>
-                        {/* Semi-transparent shell */}
+                        {/* Semi-transparent shell — DoubleSide so interior shows */}
                         <mesh>
                             <boxGeometry args={[W, D, H]} />
                             <meshPhysicalMaterial
                                 color={brickColor}
                                 transparent
-                                opacity={0.16}
+                                opacity={0.12}
                                 roughness={0.9}
                                 metalness={0.0}
                                 side={THREE.DoubleSide}
@@ -371,9 +355,7 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
                     </group>
                 )}
 
-                {/* 
-                    Hollow holes — disembunyikan saat mode Cross-Section agar rongga kosong internal terlihat natural
-                */}
+                {/* Hollow holes — hidden in cross-section mode */}
                 {!showCrossSection && (
                     <>
                         {/* Left hole */}
@@ -389,41 +371,15 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
                     </>
                 )}
 
-                {/* Top face texture grooves for realism */}
-                <mesh position={[0, D / 2 + 0.001, 0]}>
-                    <boxGeometry args={[W * 0.98, 0.005, H * 0.96]} />
-                    <meshStandardMaterial color={brickColor} roughness={1} metalness={0} />
-                </mesh>
-
-                {/* Dimension Labels */}
-                {showLabels && visible && (
-                    <>
-                        {/* Length label: 40cm (X-axis) */}
-                        <Html position={[0, -D / 2 - 0.9, 0]} center distanceFactor={11} zIndexRange={[50, 0]}>
-                            <div className="pointer-events-none flex items-center gap-1 whitespace-nowrap">
-                                <div className="h-px w-10 bg-eco-600"></div>
-                                <span className="rounded-md bg-white/95 px-2 py-0.5 text-[10px] font-bold text-eco-800 shadow-sm border border-eco-200 whitespace-nowrap">
-                                    ← 40 cm →
-                                </span>
-                                <div className="h-px w-10 bg-eco-600"></div>
-                            </div>
-                        </Html>
-                        {/* Width label: 20cm (Z-axis) */}
-                        <Html position={[W / 2 + 0.9, 0, H / 2 + 0.6]} center distanceFactor={11} zIndexRange={[50, 0]}>
-                            <span className="pointer-events-none rounded-md bg-white/95 px-2 py-0.5 text-[10px] font-bold text-eco-800 shadow-sm border border-eco-200 whitespace-nowrap">
-                                20 cm
-                            </span>
-                        </Html>
-                        {/* Height label: 10cm (D = brick height/thickness) */}
-                        <Html position={[W / 2 + 0.9, 0, -H / 2 - 0.6]} center distanceFactor={11} zIndexRange={[50, 0]}>
-                            <span className="pointer-events-none rounded-md bg-white/95 px-2 py-0.5 text-[10px] font-bold text-eco-800 shadow-sm border border-eco-200 whitespace-nowrap">
-                                10 cm
-                            </span>
-                        </Html>
-                    </>
+                {/* Top face texture groove — HIDDEN in cross-section so top is open */}
+                {!showCrossSection && (
+                    <mesh position={[0, D / 2 + 0.001, 0]}>
+                        <boxGeometry args={[W * 0.98, 0.005, H * 0.96]} />
+                        <meshStandardMaterial color={brickColor} roughness={1} metalness={0} />
+                    </mesh>
                 )}
 
-                {/* "ECO-BRICK READY!" 3D Billboard */}
+                {/* "ECO-BRICK READY!" Billboard — stays in 3D, always faces camera */}
                 {showLabels && visible && (
                     <Billboard position={[0, D / 2 + 2.2, 0]}>
                         <Text
@@ -439,16 +395,7 @@ function EcoBrick({ visible, showLabels, showCrossSection }: { visible: boolean;
                     </Billboard>
                 )}
 
-                {/* Hollow label */}
-                {showLabels && visible && (
-                    <Html position={[0, D / 2 + 0.9, 0]} center distanceFactor={11} zIndexRange={[50, 0]}>
-                        <div className="pointer-events-none select-none rounded-md bg-eco-900/80 px-2 py-1 text-center text-[9px] font-medium text-eco-300 border border-eco-700/40 shadow">
-                            Batako Berongga — SNI 03-0349-1989
-                        </div>
-                    </Html>
-                )}
-
-                {/* Green sparkles around the finished brick */}
+                {/* Green sparkles */}
                 <Sparkles
                     count={isSNI ? 30 : 10}
                     scale={[7, 4, 5]}
@@ -480,10 +427,11 @@ export function ReactorScene() {
     const showMixer = phase === "idle" || phase === "mixing";
     const showBrick = phase === "result";
     const result = useSimulationStore((s) => s.ecoBrickResult);
+    const isSNI = result?.isSNICompliant ?? false;
 
     return (
         <div className="relative h-full w-full overflow-hidden rounded-xl bg-gradient-to-br from-eco-50 to-eco-100">
-            {/* Controls */}
+            {/* Controls — Top Left */}
             <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
                 <button
                     onClick={() => setShowLabels((v) => !v)}
@@ -511,7 +459,7 @@ export function ReactorScene() {
                 )}
             </div>
 
-            {/* Static Cross-Section label — top center */}
+            {/* Cross-Section label — top center */}
             {showCrossSection && showBrick && (
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
                     <div className="rounded-lg bg-gray-900/85 px-4 py-1.5 text-xs font-bold text-white border border-amber-500/50 backdrop-blur-sm whitespace-nowrap shadow-lg animate-in fade-in duration-300">
@@ -520,7 +468,7 @@ export function ReactorScene() {
                 </div>
             )}
 
-            {/* Phase Badge */}
+            {/* Phase Badge — Top Right */}
             <div className="absolute top-3 right-3 z-10">
                 <div
                     className={`rounded-full px-3 py-1 text-xs font-bold shadow-sm transition-all ${
@@ -539,6 +487,64 @@ export function ReactorScene() {
                     {phase === "result" && "✅ Complete"}
                 </div>
             </div>
+
+            {/* ── STATIC DIMENSION LABEL PANEL (Right side, only on brick result) ── */}
+            {showBrick && showLabels && (
+                <div className="absolute top-1/2 right-3 z-10 -translate-y-1/2 flex flex-col gap-2 pointer-events-none">
+                    {/* SNI Status badge */}
+                    <div className={`rounded-lg px-3 py-2 text-center text-[10px] font-bold shadow-lg border ${
+                        isSNI
+                            ? "bg-eco-900/90 border-eco-400/50 text-eco-300"
+                            : "bg-red-900/90 border-red-400/50 text-red-300"
+                    }`}>
+                        <div className="text-lg mb-0.5">{isSNI ? "✅" : "⚠️"}</div>
+                        <div>Batako Berongga</div>
+                        <div className="text-[9px] opacity-80 mt-0.5">SNI 03-0349-1989</div>
+                    </div>
+
+                    {/* Dimension labels */}
+                    <div className="rounded-lg bg-white/95 border border-eco-200 shadow-lg px-3 py-2.5 space-y-2">
+                        <div className="text-[9px] font-bold text-eco-700 uppercase tracking-wider text-center border-b border-eco-100 pb-1.5 mb-1.5">
+                            📐 Dimensi SNI
+                        </div>
+                        {/* Panjang */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5 text-eco-600">
+                                <span className="text-[9px]">↔</span>
+                            </div>
+                            <div>
+                                <div className="text-[8px] text-gray-500">Panjang</div>
+                                <div className="text-[11px] font-bold text-eco-800">40 cm</div>
+                            </div>
+                        </div>
+                        {/* Tinggi */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5 text-eco-600">
+                                <span className="text-[9px]">↕</span>
+                            </div>
+                            <div>
+                                <div className="text-[8px] text-gray-500">Tinggi</div>
+                                <div className="text-[11px] font-bold text-eco-800">20 cm</div>
+                            </div>
+                        </div>
+                        {/* Lebar */}
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-0.5 text-eco-600">
+                                <span className="text-[9px]">⇔</span>
+                            </div>
+                            <div>
+                                <div className="text-[8px] text-gray-500">Lebar</div>
+                                <div className="text-[11px] font-bold text-eco-800">10 cm</div>
+                            </div>
+                        </div>
+                        {/* Volume */}
+                        <div className="border-t border-eco-100 pt-1.5">
+                            <div className="text-[8px] text-gray-500">Volume Solid</div>
+                            <div className="text-[10px] font-semibold text-eco-700">6.432 cm³</div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 3D Canvas */}
             <Canvas shadows dpr={[1, 2]}>
@@ -568,7 +574,7 @@ export function ReactorScene() {
                 />
             </Canvas>
 
-            {/* Substance Legend (when Cross-Section is ON) */}
+            {/* Substance Legend (Cross-Section mode) */}
             {showCrossSection && showBrick && (
                 <div className="absolute bottom-10 left-3 z-10 pointer-events-auto rounded-xl border border-gray-300/60 bg-white/95 p-3 shadow-xl backdrop-blur-md text-xs max-w-[210px] animate-in slide-in-from-left duration-300">
                     <div className="mb-2 border-b border-gray-200 pb-1 font-bold text-gray-800 flex items-center gap-1.5">
@@ -590,9 +596,9 @@ export function ReactorScene() {
                 Left Click: Rotate • Right Click: Pan • Scroll: Zoom
             </div>
 
-            {/* Spec Overlay (Bottom Right) */}
+            {/* Spec Overlay — Bottom Right */}
             {result && showLabels && showBrick && (
-                <div className="absolute bottom-3 right-3 z-10 pointer-events-none min-w-[185px] rounded-xl border border-eco-500/30 bg-eco-900/90 p-3 shadow-xl backdrop-blur-md transition-all duration-500 ease-in-out transform translate-y-0 opacity-100">
+                <div className="absolute bottom-3 right-3 z-10 pointer-events-none min-w-[185px] rounded-xl border border-eco-500/30 bg-eco-900/90 p-3 shadow-xl backdrop-blur-md transition-all duration-500 ease-in-out">
                     <div className="mb-1.5 border-b border-eco-600/30 pb-1 text-center text-[9px] font-bold uppercase tracking-wider text-eco-400">
                         Spesifikasi Material
                     </div>

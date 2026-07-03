@@ -124,18 +124,46 @@ export const ENERGY_CONSTANTS = {
 };
 
 export const ECONOMIC_DEFAULTS = {
-  CAPEX_MIXER_REF: 2_800_000_000, CAPEX_MOLDER_REF: 3_200_000_000,
-  CAPEX_CURING_CHAMBER_REF: 1_800_000_000, CAPEX_SILO_CONVEYOR_REF: 1_200_000_000,
-  CAPEX_NEUTRALIZATION_UNIT_REF: 1_500_000_000, CAPEX_REF_CAPACITY: 50,
+  // === CAPEX (sesuai PPT Analisis Finansial) ===
+  CAPEX_MIXER_REF: 2_000_000_000,          // Mesin Cetak Batako Hidrolik & Mixer
+  CAPEX_MOLDER_REF: 3_200_000_000,
+  CAPEX_CURING_CHAMBER_REF: 1_000_000_000, // Pembangunan Instalasi & Curing Area
+  CAPEX_SILO_CONVEYOR_REF: 1_200_000_000,
+  CAPEX_NEUTRALIZATION_UNIT_REF: 1_500_000_000,
+  CAPEX_REF_CAPACITY: 50,
   SCALING_FACTOR: 0.6,
   LANG_FACTORS: { INSTALLATION: 0.18, CIVIL: 0.14, ENGINEERING: 0.10, CONTINGENCY: 0.10 },
-  LABOR_COST_REF_YEAR: 432_000_000, LABOR_REF_CAPACITY: 50, LABOR_SCALING_FACTOR: 0.25,
-  OPEX_FIXED_PERCENT: 0.04, ELECTRICITY_COST_KWH: 1_444,
-  LIME_COST_PER_KG: 2_000, BINDER_COST_PER_KG: 2_200,
-  PRODUCT_PRICE_STANDARD: 550_000, PRODUCT_PRICE_PREMIUM: 850_000,
+
+  // === OPEX ===
+  LABOR_COST_REF_YEAR: 432_000_000,
+  LABOR_REF_CAPACITY: 50,
+  LABOR_SCALING_FACTOR: 0.25,
+  OPEX_FIXED_PERCENT: 0.04,
+  ELECTRICITY_COST_KWH: 1_444,
+  LIME_COST_PER_KG: 2_000,
+  BINDER_COST_PER_KG: 2_200,             // Semen & Kapur Penetral / CaO
+
+  // === HARGA JUAL (sesuai PPT: Rp 4.500/pcs batako, B2B/B2C) ===
+  /** Harga jual batako per pcs (Rp) — sumber: mockup UI PPT Analisis Ekonomi */
+  BRICK_PRICE_PER_PCS: 4_500,
+  /** Harga jual per ton equivalen (Rp/ton) — digunakan untuk kalkulasi revenue lama */
+  PRODUCT_PRICE_STANDARD: 4_500 * 112,    // ~Rp 504.000/ton (~112 pcs/ton @ 9kg/pcs)
+  PRODUCT_PRICE_PREMIUM: 4_500 * 130,     // Paving block lebih ringan
+
+  // === PENDAPATAN LAIN (sesuai PPT 2026) ===
+  /** Tipping fee industri (B2B) per ton tailing masuk — sesuai PPT Rp 4 Miliar/tahun ÷ ~26.667 ton */
   TIPPING_FEE_PER_TON: 150_000,
-  DISCOUNT_RATE: 0.12, TAX_RATE: 0.22, PROJECT_YEARS: 10,
-};
+
+  // === PARAMETER FINANSIAL ===
+  DISCOUNT_RATE: 0.12,
+  TAX_RATE: 0.22,
+  PROJECT_YEARS: 10,
+
+  // === TARGET PROFIT (dari PPT: Rp 73-84 juta/hari pada komposisi optimal) ===
+  /** Target margin profit harian minimum (Rp) — Tailing 45-50%, Semen 10-15%, FAS 0.45 */
+  TARGET_DAILY_PROFIT_MIN: 73_000_000,
+  TARGET_DAILY_PROFIT_MAX: 84_000_000,
+} as const;
 
 export const COMMUNITY_CONSTANTS = {
   LIME_CaO_PRICE_PER_KG: 2_200,

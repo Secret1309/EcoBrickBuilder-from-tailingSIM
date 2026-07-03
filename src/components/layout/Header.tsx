@@ -18,41 +18,41 @@ export function Header() {
 
                     {/* Logos Section - Left */}
                     {/* Mobile (sm): hidden | Tablet (md): 2 logos small | Desktop (lg): 4 logos full size */}
-                    <div className="hidden items-center gap-2 md:flex md:gap-2 lg:gap-4">
+                    <div className="hidden items-center gap-1.5 md:flex md:gap-1.5 lg:gap-2.5">
                         {/* ITB Logo — always visible on md+ */}
-                        <div className="relative h-[44px] w-[44px] overflow-hidden rounded-full border-2 border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:h-[64px] lg:w-[64px]">
+                        <div className="relative h-[30px] w-[30px] overflow-hidden rounded-full border border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:h-[40px] lg:w-[40px]">
                             <Image
                                 src="/assets/Logo_ITB.png"
                                 alt="Logo ITB"
                                 fill
-                                className="object-contain p-1"
+                                className="object-contain p-0.5"
                             />
                         </div>
                         {/* EneRC Logo — always visible on md+ */}
-                        <div className="relative h-[44px] w-[44px] overflow-hidden rounded-full border-2 border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:h-[64px] lg:w-[64px]">
+                        <div className="relative h-[30px] w-[30px] overflow-hidden rounded-full border border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:h-[40px] lg:w-[40px]">
                             <Image
                                 src="/assets/Logo_EneRC.png"
                                 alt="Logo EneRC"
                                 fill
-                                className="object-contain p-1"
+                                className="object-contain p-0.5"
                             />
                         </div>
                         {/* UNNES Logo — only on lg+ */}
-                        <div className="relative hidden h-[64px] w-[64px] overflow-hidden rounded-full border-2 border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:block">
+                        <div className="relative hidden h-[40px] w-[40px] overflow-hidden rounded-full border border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:block">
                             <Image
                                 src="/assets/Logo_UNNES.png"
                                 alt="Logo UNNES"
                                 fill
-                                className="object-contain p-1"
+                                className="object-contain p-0.5"
                             />
                         </div>
                         {/* GSC Logo — only on lg+ */}
-                        <div className="relative hidden h-[64px] w-[64px] overflow-hidden rounded-full border-2 border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:block">
+                        <div className="relative hidden h-[40px] w-[40px] overflow-hidden rounded-full border border-eco-400/30 bg-white/10 shadow-sm backdrop-blur-sm lg:block">
                             <Image
                                 src="/assets/Logo_GSC_2026.png"
                                 alt="Logo GSC 2026"
                                 fill
-                                className="object-contain p-1"
+                                className="object-contain p-0.5"
                             />
                         </div>
                     </div>
